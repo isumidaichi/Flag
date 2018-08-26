@@ -22,7 +22,7 @@ class DetailTableViewController: UITableViewController {
     var ref: DatabaseReference!
     var defaultRef: DatabaseReference?
     var joinRef: DatabaseReference?
-    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加予定数", "キーワード"]
+    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加人数", "キーワード"]
     
     var tableData: [String : Any] = [
         "title": "",
@@ -64,6 +64,16 @@ class DetailTableViewController: UITableViewController {
     
     // 参加ボタンを押した際の処理
     @IBAction func tappedJoinBottun(_ sender: UIButton) {
+        
+        guard (uid != nil) else {
+            // ログインアラート
+            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return
+        }
+
         // データセット作成
         let data : [String : Any] = [
             "user_id": uid as Any,
@@ -84,9 +94,19 @@ class DetailTableViewController: UITableViewController {
     
     // 参加しないボタン押した際の処理
     @IBAction func tappedNoJoinButton(_ sender: UIButton) {
+        
+        guard (uid != nil) else {
+            // ログインアラート
+            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return
+        }
+
         // 「event_user_join」テーブルからデータ削除
         self.ref.child("event_user_join").queryOrdered(byChild: "user_id")
-            .queryEqual(toValue: Auth.auth().currentUser!.uid)
+            .queryEqual(toValue: uid)
             .observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
                 var snapArray = [DataSnapshot]()
                 for snap in snapshot.children {
@@ -103,10 +123,24 @@ class DetailTableViewController: UITableViewController {
         UserDefaults.standard.removeObject(forKey: "join\(String(describing: eventId))")
         joinButton.isHidden = false
         noJoinButton.isHidden = true
+        // サクセスアラート
+        let alert = UIAlertController(title: "登録解除", message: "イベントの参加登録を解除しました。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true, completion: nil)
     }
     
     // お気に入りボタンを押した際の処理
     @IBAction func tappedFavoriteButton(_ sender: UIButton) {
+        
+        guard (uid != nil) else {
+            // ログインアラート
+            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return
+        }
+
         // データセット作成
         let data : [String : Any] = [
             "user_id": uid as Any,
@@ -127,8 +161,18 @@ class DetailTableViewController: UITableViewController {
     
     // お気に入り解除ボタンを押した際の処理
     @IBAction func tappedNoFavoriteButton(_ sender: UIButton) {
+        
+        guard (uid != nil) else {
+            // ログインアラート
+            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return
+        }
+
         // 「event_user_join」テーブルからデータ削除
-        self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: Auth.auth().currentUser!.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+        self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
             
             var snapArray = [DataSnapshot]()
             for snap in snapshot.children {
@@ -145,6 +189,10 @@ class DetailTableViewController: UITableViewController {
         favoriteButton.isHidden = false
         noFavoriteButton.isHidden = true
         UserDefaults.standard.removeObject(forKey: "favorite\(String(describing: eventId))")
+        // サクセスアラート
+        let alert = UIAlertController(title: "登録解除", message: "イベントのお気に入り登録を解除しました。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true, completion: nil)
     }
     
     // section数の指定
@@ -165,7 +213,7 @@ class DetailTableViewController: UITableViewController {
     // cellの組み立て
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        // ???
+        // cellを複数行に
         cell.textLabel?.numberOfLines = 0
         
         if (indexPath.section == 0){
@@ -177,8 +225,8 @@ class DetailTableViewController: UITableViewController {
         } else if(indexPath.section == 3) {
             cell.textLabel?.text = self.tableData["place"] as? String
         } else if(indexPath.section == 4) {
-            if let num = tableData["limitNum"] {
-                cell.textLabel?.text = "\(String(describing: tableData["joinNum"]))人 / \(num)人"
+            if let joinNum = tableData["joinNum"], let limitNum = tableData["limitNum"] {
+                cell.textLabel?.text = "\(joinNum)人 / \(limitNum)人"
             }
         } else if(indexPath.section == 5) {
             cell.textLabel?.text =  self.tableData["tag"] as? String

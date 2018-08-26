@@ -20,14 +20,10 @@ class UserTableViewController: UITableViewController {
     var joinTableData:[DataSnapshot] = [DataSnapshot]()
     var eventId: String?
     let sectionTitle = ["開催予定", "参加予定"]
-    
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var emailLabel: UILabel!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // DB参照
         ref = Database.database().reference()
         
         // tableviewの設定
@@ -38,20 +34,101 @@ class UserTableViewController: UITableViewController {
         view.backgroundColor = .groupTableViewBackground
         let tableFooterView = UIView(frame: CGRect.zero)
         tableView.tableFooterView = tableFooterView
-        
         // ユーザー情報の表示
-        nameLabel.text = user?.displayName
-        emailLabel.text = user?.email
+        if let name = user?.displayName {
+            self.navigationItem.title = "\(name)のページ"
+        }
         
         observeHostData()
         observeJoinData()
     }
     
     // ログアウトボタンの処理
-    @IBAction func tappedLogoutButton(_ sender: UIBarButtonItem) {
+    @IBAction func tappedLogoutButton(_ sender: UIButton) {
         _ = try? Auth.auth().signOut()
         let next = storyboard!.instantiateViewController(withIdentifier: "Login")
         self.present(next,animated: true, completion: nil)
+    }
+    
+    // 退会ボタンの処理
+    @IBAction func tappedQuitButton(_ sender: UIButton) {
+        // 退会確認アラート
+        let alert = UIAlertController(title: "退会確認", message: "退会手続きをされますと、サービス利用のために再度登録が必要になります。本当に退会してよろしいですか？", preferredStyle: .alert)
+        // 退会処理
+        let ok = UIAlertAction(title: "退会", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
+            let user = Auth.auth().currentUser
+
+            user?.delete { error in
+                if error != nil {
+                    let alert = UIAlertController(title: "エラー", message: error?.localizedDescription, preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil))
+                    self.present(alert, animated: true, completion: nil)
+                } else {
+                    // 削除完了
+                    // 「events」「event_user_host」テーブルからデータ削除
+                    self.ref.child("event_user_host").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                        
+                        var snapArray = [DataSnapshot]()
+                        var idArray: Array<Any> = []
+                        
+                        for snap in snapshot.children {
+                            snapArray.append(snap as! DataSnapshot)
+                        }
+                        // 配列からevent_idを取り出す
+                        for snap in snapArray {
+                            let id = snap.childSnapshot(forPath: "event_id").value as! String
+                            idArray.append(id)
+                        }
+                        // event_idから各eventの情報を取得し削除
+                        for id in idArray {
+                            self.ref.child("events").child(id as! String).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
+                                let key = snapshot.key
+                                self.ref.child("events/\(key)").removeValue()
+                            })
+                        }
+                        // 「event_user_host」テーブルからデータ削除
+                        for snap in snapArray {
+                            let key = snap.key
+                            self.ref.child("event_user_host/\(key)").removeValue()
+                        }
+                    })
+                    
+                    // 「event_user_join」テーブルからデータ削除
+                    self.ref.child("event_user_join").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                        
+                        var snapArray = [DataSnapshot]()
+                        for snap in snapshot.children {
+                            snapArray.append(snap as! DataSnapshot)
+                        }
+                        for snap in snapArray {
+                            let key = snap.key
+                            self.ref.child("event_user_join/\(key)").removeValue()
+                        }
+                    })
+                    // 「event_user_favorite」テーブルからデータ削除
+                    self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                        
+                        var snapArray = [DataSnapshot]()
+                        for snap in snapshot.children {
+                            snapArray.append(snap as! DataSnapshot)
+                        }
+                        for snap in snapArray {
+                            let key = snap.key
+                            self.ref.child("event_user_favorite/\(key)").removeValue()
+                        }
+                    })
+                    
+                    // ログイン画面に戻る
+                    let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                    self.present(next,animated: true, completion: nil)
+                }
+            }
+        }
+        
+        let cancel = UIAlertAction(title: "キャンセル", style: UIAlertActionStyle.cancel, handler: nil)
+        alert.addAction(ok)
+        alert.addAction(cancel)
+        present(alert, animated: true, completion: nil)
     }
     
     // section数の指定
@@ -93,7 +170,6 @@ class UserTableViewController: UITableViewController {
         }
         
         return cell
-        
     }
     
     // ホストイベントのみ編集モードオンに
@@ -107,7 +183,52 @@ class UserTableViewController: UITableViewController {
     // cellの削除機能
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            
+            eventId = self.hostTableData[indexPath.row].key
+            // 「events」テーブルからデータ削除
+            if let key = eventId {
+                self.ref.child("events/\(key)").removeValue()
+            }
+            // 「event_user_host」テーブルからデータ削除
+            self.ref.child("event_user_host").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                
+                var snapArray = [DataSnapshot]()
+                for snap in snapshot.children {
+                    snapArray.append(snap as! DataSnapshot)
+                }
+                for snap in snapArray {
+                    let key = snap.key
+                    self.ref.child("event_user_host/\(key)").removeValue()
+                }
+            })
+            // 「event_user_join」テーブルからデータ削除
+            self.ref.child("event_user_join").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                
+                var snapArray = [DataSnapshot]()
+                for snap in snapshot.children {
+                    snapArray.append(snap as! DataSnapshot)
+                }
+                for snap in snapArray {
+                    let key = snap.key
+                    self.ref.child("event_user_join/\(key)").removeValue()
+                }
+            })
+            // 「event_user_favorite」テーブルからデータ削除
+            self.ref.child("event_user_favorite").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                
+                var snapArray = [DataSnapshot]()
+                for snap in snapshot.children {
+                    snapArray.append(snap as! DataSnapshot)
+                }
+                for snap in snapArray {
+                    let key = snap.key
+                    self.ref.child("event_user_favorite/\(key)").removeValue()
+                }
+            })
+            // cell削除
+            hostTableData.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
+ 
         }
     }
     
@@ -208,5 +329,45 @@ class UserTableViewController: UITableViewController {
             }
         })
     }
+    
+//    func deleteData(_ path: String, _ value: String) {
+//        // 「event_user_host」テーブルからデータ削除
+//        self.ref.child("event_user_host").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+//
+//            var snapArray = [DataSnapshot]()
+//            for snap in snapshot.children {
+//                snapArray.append(snap as! DataSnapshot)
+//            }
+//            for snap in snapArray {
+//                let key = snap.key
+//                self.ref.child("event_user_host/\(key)").removeValue()
+//            }
+//        })
+//        // 「event_user_join」テーブルからデータ削除
+//        self.ref.child("event_user_join").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+//
+//            var snapArray = [DataSnapshot]()
+//            for snap in snapshot.children {
+//                snapArray.append(snap as! DataSnapshot)
+//            }
+//            for snap in snapArray {
+//                let key = snap.key
+//                self.ref.child("event_user_join/\(key)").removeValue()
+//            }
+//        })
+//        // 「event_user_favorite」テーブルからデータ削除
+//        self.ref.child("event_user_favorite").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+//
+//            var snapArray = [DataSnapshot]()
+//            for snap in snapshot.children {
+//                snapArray.append(snap as! DataSnapshot)
+//            }
+//            for snap in snapArray {
+//                let key = snap.key
+//                self.ref.child("event_user_favorite/\(key)").removeValue()
+//            }
+//        })
+//
+//    }
 
 }

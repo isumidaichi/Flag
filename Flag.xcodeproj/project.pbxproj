@@ -10,7 +10,6 @@
 		3082D542F46FF7B722CB0122 /* Pods_Flag.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CED133E8EBD5923CFCB1B738 /* Pods_Flag.framework */; };
 		41023E8E21306B7700ED67EB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41023E8D21306B7700ED67EB /* AppDelegate.swift */; };
 		41023E9321306B7700ED67EB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41023E9121306B7700ED67EB /* Main.storyboard */; };
-		41023E9521306B7900ED67EB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 41023E9421306B7900ED67EB /* Assets.xcassets */; };
 		41023E9821306B7900ED67EB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 41023E9621306B7900ED67EB /* LaunchScreen.storyboard */; };
 		41023EA42130738800ED67EB /* GoogleService-Info-flag.plist in Resources */ = {isa = PBXBuildFile; fileRef = 41023EA32130738800ED67EB /* GoogleService-Info-flag.plist */; };
 		41023EA621310B5F00ED67EB /* RoundedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41023EA521310B5F00ED67EB /* RoundedButton.swift */; };
@@ -26,6 +25,8 @@
 		414E765B213170D000680A93 /* HostTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414E765A213170D000680A93 /* HostTableViewController.swift */; };
 		414E765D2131790500680A93 /* CreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414E765C2131790500680A93 /* CreateViewController.swift */; };
 		414E765F2131795A00680A93 /* Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414E765E2131795A00680A93 /* Keyboard.swift */; };
+		414E76632132504A00680A93 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 414E76622132504A00680A93 /* Assets.xcassets */; };
+		414E76672132784400680A93 /* Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 414E76662132784400680A93 /* Placeholder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,7 +34,6 @@
 		41023E8A21306B7600ED67EB /* Flag.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Flag.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		41023E8D21306B7700ED67EB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		41023E9221306B7700ED67EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		41023E9421306B7900ED67EB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		41023E9721306B7900ED67EB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		41023E9921306B7900ED67EB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		41023EA32130738800ED67EB /* GoogleService-Info-flag.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-flag.plist"; path = "../../GoogleService-Info-flag.plist"; sourceTree = "<group>"; };
@@ -50,6 +50,8 @@
 		414E765A213170D000680A93 /* HostTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostTableViewController.swift; sourceTree = "<group>"; };
 		414E765C2131790500680A93 /* CreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateViewController.swift; sourceTree = "<group>"; };
 		414E765E2131795A00680A93 /* Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Keyboard.swift; sourceTree = "<group>"; };
+		414E76622132504A00680A93 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ../../../.Trash/Assets.xcassets; sourceTree = "<group>"; };
+		414E76662132784400680A93 /* Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Placeholder.swift; sourceTree = "<group>"; };
 		89F5F59E8ABA0B05914A4378 /* Pods-Flag.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Flag.release.xcconfig"; path = "Pods/Target Support Files/Pods-Flag/Pods-Flag.release.xcconfig"; sourceTree = "<group>"; };
 		CED133E8EBD5923CFCB1B738 /* Pods_Flag.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Flag.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -110,9 +112,10 @@
 				414E765A213170D000680A93 /* HostTableViewController.swift */,
 				41023EA521310B5F00ED67EB /* RoundedButton.swift */,
 				414E765E2131795A00680A93 /* Keyboard.swift */,
+				414E76662132784400680A93 /* Placeholder.swift */,
+				414E76622132504A00680A93 /* Assets.xcassets */,
 				41023E9121306B7700ED67EB /* Main.storyboard */,
 				41023E9621306B7900ED67EB /* LaunchScreen.storyboard */,
-				41023E9421306B7900ED67EB /* Assets.xcassets */,
 				41023E9921306B7900ED67EB /* Info.plist */,
 				41023EA32130738800ED67EB /* GoogleService-Info-flag.plist */,
 			);
@@ -189,7 +192,7 @@
 			files = (
 				41023E9821306B7900ED67EB /* LaunchScreen.storyboard in Resources */,
 				41023EA42130738800ED67EB /* GoogleService-Info-flag.plist in Resources */,
-				41023E9521306B7900ED67EB /* Assets.xcassets in Resources */,
+				414E76632132504A00680A93 /* Assets.xcassets in Resources */,
 				41023E9321306B7700ED67EB /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -253,6 +256,7 @@
 				41023E8E21306B7700ED67EB /* AppDelegate.swift in Sources */,
 				414E76492131340A00680A93 /* SearchCollectionViewCell.swift in Sources */,
 				414E765D2131790500680A93 /* CreateViewController.swift in Sources */,
+				414E76672132784400680A93 /* Placeholder.swift in Sources */,
 				414E765B213170D000680A93 /* HostTableViewController.swift in Sources */,
 				414E76512131405A00680A93 /* FavoriteTableViewController.swift in Sources */,
 				414E76532131406D00680A93 /* SearchTableViewController.swift in Sources */,
@@ -400,6 +404,8 @@
 			baseConfigurationReference = 2ACBA89D4590578FE07FB529 /* Pods-Flag.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 553U7U337J;
 				INFOPLIST_FILE = Flag/Info.plist;
@@ -407,10 +413,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daichiogawa.Flag;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daichiogawa.flag;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -419,6 +426,8 @@
 			baseConfigurationReference = 89F5F59E8ABA0B05914A4378 /* Pods-Flag.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 553U7U337J;
 				INFOPLIST_FILE = Flag/Info.plist;
@@ -426,10 +435,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.daichiogawa.Flag;
+				PRODUCT_BUNDLE_IDENTIFIER = com.daichiogawa.flag;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

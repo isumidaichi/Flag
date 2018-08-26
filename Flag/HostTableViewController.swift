@@ -17,7 +17,7 @@ class HostTableViewController: UITableViewController {
     var ref: DatabaseReference!
     var defaultRef: DatabaseReference?
     var joinRef: DatabaseReference?
-    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加予定数", "キーワード"]
+    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加人数", "キーワード"]
     
     var tableData: [String : Any] = [
         "title": "",
@@ -33,7 +33,6 @@ class HostTableViewController: UITableViewController {
         super.viewDidLoad()
         // DB参照
         ref = Database.database().reference()
-        
         // tableviewの設定
         tableView.delegate = self
         tableView.dataSource = self
@@ -65,7 +64,7 @@ class HostTableViewController: UITableViewController {
     // 参加しないボタン押した際の処理
     @IBAction func tappedNoJoinButton(_ sender: UIButton) {
         // 「event_user_join」テーブルからデータ削除
-        self.ref.child("event_user_join").queryOrdered(byChild: "user_id").queryEqual(toValue: Auth.auth().currentUser!.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+        self.ref.child("event_user_join").queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
             var snapArray = [DataSnapshot]()
             for snap in snapshot.children {
                 snapArray.append(snap as! DataSnapshot)
@@ -78,6 +77,10 @@ class HostTableViewController: UITableViewController {
                 }
             }
         })
+        // サクセスアラート
+        let alert = UIAlertController(title: "登録解除", message: "イベントの参加登録を解除しました。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true, completion: nil)
     }
     
     // お気に入りボタンを押した際の処理
@@ -99,7 +102,7 @@ class HostTableViewController: UITableViewController {
     // お気に入り解除ボタンを押した際の処理
     @IBAction func tappedNoFavoriteButton(_ sender: UIButton) {
         // 「event_user_join」テーブルからデータ削除
-        self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: Auth.auth().currentUser!.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+        self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
             
             var snapArray = [DataSnapshot]()
             for snap in snapshot.children {
@@ -112,6 +115,10 @@ class HostTableViewController: UITableViewController {
                 }
             }
         })
+        // サクセスアラート
+        let alert = UIAlertController(title: "登録解除", message: "イベントのお気に入り登録を解除しました。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true, completion: nil)
     }
     
     // section数の指定
@@ -132,7 +139,7 @@ class HostTableViewController: UITableViewController {
     // cellの組み立て
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        // ???
+        // cellを複数行に
         cell.textLabel?.numberOfLines = 0
         
         if (indexPath.section == 0){
@@ -144,8 +151,8 @@ class HostTableViewController: UITableViewController {
         } else if(indexPath.section == 3) {
             cell.textLabel?.text = self.tableData["place"] as? String
         } else if(indexPath.section == 4) {
-            if let num = tableData["limitNum"] {
-                cell.textLabel?.text = "\(String(describing: tableData["joinNum"]))人 / \(num)人"
+            if let joinNum = tableData["joinNum"], let limitNum = tableData["limitNum"] {
+                cell.textLabel?.text = "\(joinNum)人 / \(limitNum)人"
             }
         } else if(indexPath.section == 5) {
             cell.textLabel?.text =  self.tableData["tag"] as? String
@@ -169,7 +176,7 @@ class HostTableViewController: UITableViewController {
             self.joinRef = self.ref.child("event_user_join")
             self.joinRef?.queryOrdered(byChild: "event_id").queryEqual(toValue: self.eventId).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
                 
-                self.tableData["joinNum"] = Int(snapshot.childrenCount)
+                self.tableData["joinNum"] = snapshot.childrenCount
                 self.tableView.reloadData()
             })
             self.tableView.reloadData()

@@ -25,7 +25,6 @@ class SearchTableViewController: UITableViewController {
         super.viewDidLoad()
         // DB参照
         ref = Database.database().reference()
-        
         // tableviewの設定
         tableView.rowHeight = 100
         // cell下部を消す

@@ -12,11 +12,12 @@ import FirebaseDatabase
 
 class CreateViewController: UIViewController {
     
+    let uid = Auth.auth().currentUser?.uid
     var ref: DatabaseReference!
     var pickerData: String!
     
     @IBOutlet weak var titleField: UITextField!
-    @IBOutlet weak var detailField: UITextField!
+    @IBOutlet weak var detailField: UITextView!
     @IBOutlet weak var placeField: UITextField!
     @IBOutlet weak var tagField: UITextField!
     @IBOutlet weak var limitNumField: UITextField!
@@ -32,10 +33,23 @@ class CreateViewController: UIViewController {
         // キーボード設定
         placeField.textContentType = UITextContentType.fullStreetAddress
         scrollView.keyboardDismissMode = .interactive
+        
+        // textviewに枠線を設定
+        detailField.layer.borderWidth = 0.4;
+        detailField.layer.cornerRadius = 10.0;
+        detailField.layer.borderColor = UIColor.lightGray.cgColor
     }
     
     // DBに保存
     @IBAction func save(_ sender: UIBarButtonItem) {
+        guard (uid != nil) else {
+            // ログインアラート
+            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+
+            return
+        }
         
         let title: String = self.titleField.text!
         let detail: String = self.detailField.text!
@@ -61,15 +75,15 @@ class CreateViewController: UIViewController {
             "limitNum": limitNum as Any,
             "date": date as Any
         ]
-        let newChild = self.ref.child("event").childByAutoId()
+        let newChild = self.ref.child("events").childByAutoId()
         newChild.setValue(data)
         
         // event_user_hostテーブルに
         let event = newChild.key
-        let uid: String = Auth.auth().currentUser!.uid
+    
         let hostData : [String : Any] = [
             "event_id": event as Any,
-            "user_id": uid as Any,
+            "user_id": self.uid as Any,
             ]
         let newHostChild = self.ref.child("event_user_host").childByAutoId()
         newHostChild.setValue(hostData)
@@ -80,7 +94,6 @@ class CreateViewController: UIViewController {
         
         // モーダルを閉じる
         self.dismiss(animated: true, completion: nil)
-
     }
     
     // データ変更時の呼び出しメソッド
@@ -88,6 +101,7 @@ class CreateViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ja_JP")
         formatter.dateFormat = "M/d(EEE) HH:mm"
+        pickerData = "\(formatter.string(from: sender.date)) 〜"
     }
     
     // キーボード設定

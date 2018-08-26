@@ -18,9 +18,9 @@ class SearchCollectionViewController: UICollectionViewController, UICollectionVi
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         // DB参照
         ref = Database.database().reference()
+        
         observeData()
     }
 
