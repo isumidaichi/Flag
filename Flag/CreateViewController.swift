@@ -10,7 +10,7 @@ import UIKit
 import FirebaseAuth
 import FirebaseDatabase
 
-class CreateViewController: UIViewController {
+class CreateViewController: UIViewController, UITextFieldDelegate{
     
     let uid = Auth.auth().currentUser?.uid
     var ref: DatabaseReference!
@@ -30,6 +30,10 @@ class CreateViewController: UIViewController {
         // DB参照
         ref = Database.database().reference()
         
+        // textfield設定
+        tagField.delegate = self
+        titleField.delegate = self
+
         // キーボード設定
         placeField.textContentType = UITextContentType.fullStreetAddress
         scrollView.keyboardDismissMode = .interactive
@@ -38,6 +42,9 @@ class CreateViewController: UIViewController {
         detailField.layer.borderWidth = 0.4;
         detailField.layer.cornerRadius = 10.0;
         detailField.layer.borderColor = UIColor.lightGray.cgColor
+        
+        self.dateField.minimumDate = NSDate() as Date
+
     }
     
     // DBに保存
@@ -116,6 +123,37 @@ class CreateViewController: UIViewController {
             return false
         }
         return true
+    }
+    
+    // タグフィールドの入力制限
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if textField.tag == 1 {
+            // タグフィールド
+            let maxLength: Int = 15
+            let str = textField.text! + string
+            if str.lengthOfBytes(using: String.Encoding.shiftJIS) < maxLength {
+                return true
+            }
+            let alert = UIAlertController(title: "文字制限", message: "半角14文字、全角7文字以内での入力を推奨しています。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return true
+
+        } else {
+            // テキストフィールド
+            let maxLength: Int = 27
+            let str = textField.text! + string
+            if str.lengthOfBytes(using: String.Encoding.shiftJIS) < maxLength {
+                return true
+            }
+            let alert = UIAlertController(title: "文字制限", message: "半角26文字、全角13文字以内での入力を推奨しています。", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alert, animated: true, completion: nil)
+            
+            return true
+        }
     }
     
 }

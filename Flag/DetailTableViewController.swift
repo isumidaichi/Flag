@@ -171,7 +171,7 @@ class DetailTableViewController: UITableViewController {
             return
         }
 
-        // 「event_user_join」テーブルからデータ削除
+        // 「event_user_favorite」テーブルからデータ削除
         self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
             
             var snapArray = [DataSnapshot]()

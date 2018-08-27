@@ -20,7 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         super.init()
         let filePath = Bundle.main.path(forResource: "GoogleService-Info-flag", ofType: "plist")
         guard let fileopts = FirebaseOptions(contentsOfFile: filePath!)
-            else { assert(false, "Couldn't load config file") }
+            else { assert(false, "Couldn't load config file")
+            return
+        }
         FirebaseApp.configure(options: fileopts)
     }
 

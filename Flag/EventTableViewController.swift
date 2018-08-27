@@ -35,7 +35,6 @@ class EventTableViewController: UITableViewController {
         tableView.tableFooterView = tableFooterView
         
         observeData()
-
     }
 
     // section数の指定
@@ -66,11 +65,7 @@ class EventTableViewController: UITableViewController {
     // cellが選択された場合
     override func tableView(_ table: UITableView,didSelectRowAt indexPath: IndexPath) {
         eventId = self.tableData[indexPath.row].key
-        if validateHost(eventId!) == "host" {
-            performSegue(withIdentifier: "goManage",sender: nil)
-        } else {
-            performSegue(withIdentifier: "goDetail",sender: nil)
-        }
+        validateHost(eventId!)
     }
     
     // segue呼ばれた際の処理
@@ -84,6 +79,40 @@ class EventTableViewController: UITableViewController {
         }
     }
     
+    // ホストか否かの判別
+    func validateHost(_ event_id: String) {
+        self.defaultRef = ref.child("event_user_host")
+        defaultRef?.queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent (of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+            
+            guard snapshot.exists() else {
+                self.checkHost(false)
+                return
+            }
+            
+            var array = [DataSnapshot]()
+            
+            for snap in snapshot.children {
+                array.append(snap as! DataSnapshot)
+            }
+            
+            for snap in array {
+                if snap.childSnapshot(forPath: "event_id").value as? String == self.eventId {
+                    self.checkHost(true)
+                    return
+                }
+            }
+            self.checkHost(false)
+        })
+    }
+    // 判別に基づいた画面繊維
+    func checkHost(_ host: Bool) {
+        if host {
+            performSegue(withIdentifier: "goManage",sender: nil)
+        } else {
+            performSegue(withIdentifier: "goDetail",sender: nil)
+        }
+    }
+    
     // eventデータの取得
     func observeData(){
         self.defaultRef = ref.child("events")
@@ -93,30 +122,9 @@ class EventTableViewController: UITableViewController {
                 let child = item as! DataSnapshot
                 array.append(child)
             }
-            self.tableData = array
+            self.tableData = array.reversed()
             self.tableView.reloadData()
         })
     }
 
-    // ホストイベントか否かの判別
-    func validateHost(_ event_id: String) -> String {
-        self.defaultRef = ref.child("event_user_host")
-        defaultRef?.queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
-            
-            guard snapshot.exists() else {
-                return
-            }
-            
-            var array = [DataSnapshot]()
-            for snap in snapshot.children {
-                array.append(snap as! DataSnapshot)
-            }
-            for snap in array {
-                guard (event_id == snap.childSnapshot(forPath: "event_id").key) else {
-                    return
-                }
-            }
-        })
-        return "host"
-    }
 }

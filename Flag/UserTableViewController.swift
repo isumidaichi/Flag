@@ -19,13 +19,13 @@ class UserTableViewController: UITableViewController {
     var hostTableData:[DataSnapshot] = [DataSnapshot]()
     var joinTableData:[DataSnapshot] = [DataSnapshot]()
     var eventId: String?
+    var registerNum = 0
     let sectionTitle = ["開催予定", "参加予定"]
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // DB参照
         ref = Database.database().reference()
-        
         // tableviewの設定
         tableView.delegate = self
         tableView.dataSource = self
@@ -57,7 +57,7 @@ class UserTableViewController: UITableViewController {
         // 退会処理
         let ok = UIAlertAction(title: "退会", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
             let user = Auth.auth().currentUser
-
+            
             user?.delete { error in
                 if error != nil {
                     let alert = UIAlertController(title: "エラー", message: error?.localizedDescription, preferredStyle: .alert)
@@ -158,17 +158,33 @@ class UserTableViewController: UITableViewController {
         let titlelabel = cell.viewWithTag(1) as? UILabel
         let dateLabel = cell.viewWithTag(2) as? UILabel
         let placelabel = cell.viewWithTag(3) as? UILabel
-
+        let joinCanLabel = cell.viewWithTag(4) as? UILabel
+        var limitNum: String?
+        
         if (indexPath.section == 0){
             titlelabel?.text = self.hostTableData[indexPath.row].childSnapshot(forPath: "title").value as? String
             dateLabel?.text = self.hostTableData[indexPath.row].childSnapshot(forPath: "date").value as? String
             placelabel?.text = self.hostTableData[indexPath.row].childSnapshot(forPath: "place").value as? String
+            joinCanLabel?.isHidden = true
+            
         } else {
             titlelabel?.text = self.joinTableData[indexPath.row].childSnapshot(forPath: "title").value as? String
             dateLabel?.text = self.joinTableData[indexPath.row].childSnapshot(forPath: "date").value as? String
             placelabel?.text = self.joinTableData[indexPath.row].childSnapshot(forPath: "place").value as? String
+            // 参加可否の表示
+            limitNum = self.joinTableData[indexPath.row].childSnapshot(forPath: "limitNum").value as? String
+            if let limitNum = limitNum {
+                if let limitNum = Int(limitNum) {
+                    if self.registerNum <= limitNum {
+                        joinCanLabel?.isHidden = false
+                        joinCanLabel?.text = "参加できます"
+                    } else {
+                        joinCanLabel?.isHidden = false
+                        joinCanLabel?.text = "キャンセル待ちです"
+                    }                    
+                }
+            }
         }
-        
         return cell
     }
     
@@ -228,7 +244,7 @@ class UserTableViewController: UITableViewController {
             // cell削除
             hostTableData.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
- 
+            
         }
     }
     
@@ -242,7 +258,7 @@ class UserTableViewController: UITableViewController {
             performSegue(withIdentifier: "goDetail",sender: nil)
         }
     }
-
+    
     // segue呼ばれた際の処理
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "goManage" {
@@ -274,18 +290,16 @@ class UserTableViewController: UITableViewController {
             for snap in snapshot.children {
                 snapArray.append(snap as! DataSnapshot)
             }
-            
             // 配列からevent_idを取り出す
             for snap in snapArray {
                 let id = snap.childSnapshot(forPath: "event_id").value as! String
                 idArray.append(id)
             }
-            
             // event_idから各eventの情報を取得しテーブルに反映
             for id in idArray {
                 self.ref.child("events").child(id as! String).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
                     array.append(snapshot)
-                    self.hostTableData = array
+                    self.hostTableData = array.reversed()
                     self.tableView.reloadData()
                 })
             }
@@ -298,7 +312,7 @@ class UserTableViewController: UITableViewController {
         self.defaultRef = ref.child("event_user_join")
         defaultRef?.queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
             // 空の場合は空テーブルを表示
-            guard snapshot.exists() else{
+            guard snapshot.exists() else {
                 self.joinTableData = []
                 self.tableView.reloadData()
                 return
@@ -312,62 +326,47 @@ class UserTableViewController: UITableViewController {
             for snap in snapshot.children {
                 snapArray.append(snap as! DataSnapshot)
             }
-            
             // 配列からevent_idを取り出す
             for snap in snapArray {
                 let id = snap.childSnapshot(forPath: "event_id").value as! String
                 idArray.append(id)
             }
-            
             // event_idから各eventの情報を取得しテーブルに反映
             for id in idArray {
                 self.ref.child("events").child(id as! String).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
                     array.append(snapshot)
-                    self.joinTableData = array
+                    self.joinTableData = array.reversed()
                     self.tableView.reloadData()
+                })
+            }
+            
+            // 参加可能かチェック
+            for id in idArray {
+                // 「event_user_join」テーブルからevent_idの取得
+                self.ref.child("event_user_join").queryOrdered(byChild: "event_id").queryEqual(toValue: id).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
+                    // 空の場合は終了
+                    guard snapshot.exists() else {
+                        return
+                    }
+                    
+                    var snapArray = [DataSnapshot]()
+                    var num = 0
+                    
+                    // 取得データを配列に代入
+                    for snap in snapshot.children {
+                        snapArray.append(snap as! DataSnapshot)
+                    }
+                    // 配列の順番から何番目に登録したか判別
+                    for snap in snapArray {
+                        num += 1
+                        if self.uid == snap.childSnapshot(forPath: "user_id").value as? String {
+                            self.registerNum = num
+                            self.tableView.reloadData()
+                            break
+                        }
+                    }
                 })
             }
         })
     }
-    
-//    func deleteData(_ path: String, _ value: String) {
-//        // 「event_user_host」テーブルからデータ削除
-//        self.ref.child("event_user_host").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
-//
-//            var snapArray = [DataSnapshot]()
-//            for snap in snapshot.children {
-//                snapArray.append(snap as! DataSnapshot)
-//            }
-//            for snap in snapArray {
-//                let key = snap.key
-//                self.ref.child("event_user_host/\(key)").removeValue()
-//            }
-//        })
-//        // 「event_user_join」テーブルからデータ削除
-//        self.ref.child("event_user_join").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
-//
-//            var snapArray = [DataSnapshot]()
-//            for snap in snapshot.children {
-//                snapArray.append(snap as! DataSnapshot)
-//            }
-//            for snap in snapArray {
-//                let key = snap.key
-//                self.ref.child("event_user_join/\(key)").removeValue()
-//            }
-//        })
-//        // 「event_user_favorite」テーブルからデータ削除
-//        self.ref.child("event_user_favorite").queryOrdered(byChild: "event_id").queryEqual(toValue: eventId).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
-//
-//            var snapArray = [DataSnapshot]()
-//            for snap in snapshot.children {
-//                snapArray.append(snap as! DataSnapshot)
-//            }
-//            for snap in snapArray {
-//                let key = snap.key
-//                self.ref.child("event_user_favorite/\(key)").removeValue()
-//            }
-//        })
-//
-//    }
-
 }

@@ -36,7 +36,7 @@ class SearchCollectionViewController: UICollectionViewController, UICollectionVi
     
     // cellの配置調整
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: self.view.frame.size.width / 5, height: self.view.frame.size.width / 7)
+        return CGSize(width: self.view.frame.size.width / 3.5, height: self.view.frame.size.width / 7)
     }
     
     // cellの組み立て

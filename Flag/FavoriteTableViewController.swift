@@ -62,21 +62,12 @@ class FavoriteTableViewController: UITableViewController {
     
     // cellが選択された場合の処理
     override func tableView(_ table: UITableView,didSelectRowAt indexPath: IndexPath) {
-        // eventにユニークなidを取得
-        eventId = self.tableData[indexPath.row].key
-        if validateHost(eventId!) == "host" {
-            performSegue(withIdentifier: "goManage",sender: nil)
-        } else {
-            performSegue(withIdentifier: "goDetail",sender: nil)
-        }
+        performSegue(withIdentifier: "goDetail",sender: nil)
     }
     
     // segue呼ばれた際の処理
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "goManage" {
-            let HostTableViewController: HostTableViewController = segue.destination as! HostTableViewController
-            HostTableViewController.eventId = self.eventId!
-        } else if segue.identifier == "goDetail" {
+        if segue.identifier == "goDetail" {
             let DetailTableViewController: DetailTableViewController = segue.destination as! DetailTableViewController
             DetailTableViewController.eventId = self.eventId!
         }
@@ -111,34 +102,12 @@ class FavoriteTableViewController: UITableViewController {
             for id in idArray {
                 self.ref.child("events").child(id as! String).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
                     array.append(snapshot)
-                    self.tableData = array
+                    self.tableData = array.reversed()
                     self.tableView.reloadData()
                 })
             }
         })
     }
     
-    // ホストイベントか否かの判別
-    func validateHost(_ event_id: String) -> String {
-        self.defaultRef = ref.child("event_user_host")
-        defaultRef?.queryOrdered(byChild: "user_id").queryEqual(toValue: uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
-            
-            guard snapshot.exists() else {
-                return
-            }
-            
-            var array = [DataSnapshot]()
-            for snap in snapshot.children {
-                array.append(snap as! DataSnapshot)
-            }
-            for snap in array {
-                guard (event_id == snap.childSnapshot(forPath: "event_id").key) else {
-                    return
-                }
-            }
-        })
-        return "host"
-    }
-
 }
 
