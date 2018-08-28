@@ -314,7 +314,7 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="例）Swiftもくもく会" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nGp-2E-Md4">
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="例）Swiftもくもく会（全角13字以内を推奨します）" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="nGp-2E-Md4">
                                                 <rect key="frame" x="5" y="61" width="365" height="30"/>
                                                 <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                                                 <nil key="textColor"/>
@@ -632,11 +632,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <view key="tableHeaderView" contentMode="scaleToFill" id="ZVL-NA-FIF">
-                            <rect key="frame" x="0.0" y="0.0" width="375" height="149"/>
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <subviews>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PNr-TB-lI4">
-                                    <rect key="frame" x="20" y="59.5" width="31" height="30"/>
+                                    <rect key="frame" x="20" y="33" width="37" height="34"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                     <state key="normal" title="参加">
                                         <color key="titleColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </state>
@@ -645,7 +646,8 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PBF-Iu-Cfv">
-                                    <rect key="frame" x="278" y="59.5" width="77" height="30"/>
+                                    <rect key="frame" x="263" y="33" width="92" height="34"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                     <state key="normal" title="お気に入り">
                                         <color key="titleColor" red="1" green="0.14913141730000001" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </state>
@@ -654,14 +656,16 @@
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kb7-0i-vdR">
-                                    <rect key="frame" x="20" y="59.5" width="62" height="30"/>
+                                    <rect key="frame" x="20" y="33" width="74" height="34"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                     <state key="normal" title="参加解除"/>
                                     <connections>
                                         <action selector="tappedNoJoinButton:" destination="0jO-xa-Bp1" eventType="touchUpInside" id="5At-CD-jYR"/>
                                     </connections>
                                 </button>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9Vf-bC-tWA">
-                                    <rect key="frame" x="247" y="59.5" width="108" height="30"/>
+                                    <rect key="frame" x="226" y="33" width="129" height="34"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                     <state key="normal" title="お気に入り解除"/>
                                     <connections>
                                         <action selector="tappedNoFavoriteButton:" destination="0jO-xa-Bp1" eventType="touchUpInside" id="UAu-Ez-UXG"/>
@@ -682,7 +686,7 @@
                         </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="cell" id="PMV-CY-gD3">
-                                <rect key="frame" x="0.0" y="177" width="375" height="44"/>
+                                <rect key="frame" x="0.0" y="128" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="PMV-CY-gD3" id="0eU-O8-zmI">
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
@@ -1071,7 +1075,7 @@
     </resources>
     <inferredMetricsTieBreakers>
         <segue reference="ZJk-Zy-QoN"/>
-        <segue reference="fS6-z9-24p"/>
-        <segue reference="ISL-bF-W6W"/>
+        <segue reference="U3E-gz-9fg"/>
+        <segue reference="KOn-Pg-imG"/>
     </inferredMetricsTieBreakers>
 </document>

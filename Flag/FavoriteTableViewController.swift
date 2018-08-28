@@ -62,6 +62,7 @@ class FavoriteTableViewController: UITableViewController {
     
     // cellが選択された場合の処理
     override func tableView(_ table: UITableView,didSelectRowAt indexPath: IndexPath) {
+        eventId = self.tableData[indexPath.row].key
         performSegue(withIdentifier: "goDetail",sender: nil)
     }
     

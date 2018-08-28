@@ -140,20 +140,7 @@ class CreateViewController: UIViewController, UITextFieldDelegate{
             present(alert, animated: true, completion: nil)
             
             return true
-
-        } else {
-            // テキストフィールド
-            let maxLength: Int = 27
-            let str = textField.text! + string
-            if str.lengthOfBytes(using: String.Encoding.shiftJIS) < maxLength {
-                return true
-            }
-            let alert = UIAlertController(title: "文字制限", message: "半角26文字、全角13文字以内での入力を推奨しています。", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true, completion: nil)
-            
-            return true
         }
+        return true
     }
-    
 }
