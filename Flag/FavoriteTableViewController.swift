@@ -11,28 +11,51 @@ import FirebaseAuth
 import FirebaseDatabase
 
 class FavoriteTableViewController: UITableViewController {
-
+    
     let uid = Auth.auth().currentUser?.uid
     var ref: DatabaseReference!
     var defaultRef: DatabaseReference?
     var tableData:[DataSnapshot] = [DataSnapshot]()
     var eventId: String?
-
+    
+    @IBOutlet weak var loginButton: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // DB参照
-        ref = Database.database().reference()
         
-        // tableviewの設定
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.rowHeight = 100
         // 空のcellを消す
         view.backgroundColor = .groupTableViewBackground
         let tableFooterView = UIView(frame: CGRect.zero)
         tableView.tableFooterView = tableFooterView
-        
+
+        // ログイン確認
+        guard let _ = Auth.auth().currentUser else {
+            // アラート
+            let alert = UIAlertController(title: "エラー", message: "ログインして下さい。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil)
+            alert.addAction(ok)
+            self.present(alert, animated: true, completion: nil)
+            
+            return
+        }
+
+        // ログインボタン非表示
+        self.loginButton.isEnabled = false
+        self.loginButton.tintColor = UIColor.clear
+        // DB参照
+        ref = Database.database().reference()
+        // tableviewの設定
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.rowHeight = 100
+
         observeData()
+    }
+    
+    // ログインボタン押したら
+    @IBAction func tappedLoginButton(_ sender: UIBarButtonItem) {
+        let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+        self.present(next,animated: true, completion: nil)
     }
     
     // section数の指定
@@ -43,7 +66,7 @@ class FavoriteTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.tableData.count
     }
-
+    
     // cellの組み立て
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "eventCell", for: indexPath)
@@ -56,7 +79,7 @@ class FavoriteTableViewController: UITableViewController {
         titleLabel?.text = self.tableData[indexPath.row].childSnapshot(forPath: "title").value as? String
         dateLabel?.text = self.tableData[indexPath.row].childSnapshot(forPath: "date").value as? String
         placeLabel?.text = self.tableData[indexPath.row].childSnapshot(forPath: "place").value as? String
-
+        
         return cell
     }
     

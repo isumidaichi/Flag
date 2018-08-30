@@ -17,8 +17,7 @@ class HostTableViewController: UITableViewController {
     var ref: DatabaseReference!
     var defaultRef: DatabaseReference?
     var joinRef: DatabaseReference?
-    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加人数", "キーワード"]
-    
+    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "キーワード", "参加人数","参加者一覧"]
     var tableData: [String : Any] = [
         "title": "",
         "detail": "",
@@ -28,6 +27,7 @@ class HostTableViewController: UITableViewController {
         "limitNum": "",
         "date": ""
     ]
+    var joinTableData:[DataSnapshot] = [DataSnapshot]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -133,7 +133,11 @@ class HostTableViewController: UITableViewController {
     
     // sectionあたりのcell数の指定
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 1
+        if (section == 6) {
+            return self.joinTableData.count
+        } else {
+            return 1
+        }
     }
     
     // cellの組み立て
@@ -142,7 +146,7 @@ class HostTableViewController: UITableViewController {
         // cellを複数行に
         cell.textLabel?.numberOfLines = 0
         
-        if (indexPath.section == 0){
+        if (indexPath.section == 0) {
             cell.textLabel?.text = self.tableData["title"] as? String
         } else if(indexPath.section == 1) {
             cell.textLabel?.text = self.tableData["detail"] as? String
@@ -151,11 +155,13 @@ class HostTableViewController: UITableViewController {
         } else if(indexPath.section == 3) {
             cell.textLabel?.text = self.tableData["place"] as? String
         } else if(indexPath.section == 4) {
+            cell.textLabel?.text =  self.tableData["tag"] as? String
+        } else if(indexPath.section == 5) {
             if let joinNum = tableData["joinNum"], let limitNum = tableData["limitNum"] {
                 cell.textLabel?.text = "\(joinNum)人 / \(limitNum)人"
             }
-        } else if(indexPath.section == 5) {
-            cell.textLabel?.text =  self.tableData["tag"] as? String
+        } else if(indexPath.section == 6) {
+            cell.textLabel?.text =  self.joinTableData[indexPath.row].childSnapshot(forPath: "name").value as? String
         }
         return cell
     }
@@ -176,6 +182,33 @@ class HostTableViewController: UITableViewController {
             self.joinRef = self.ref.child("event_user_join")
             self.joinRef?.queryOrdered(byChild: "event_id").queryEqual(toValue: self.eventId).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
                 
+                // 参加者の一覧を取得
+                var snapArray = [DataSnapshot]()
+                var idArray: Array<Any> = []
+                var array = [DataSnapshot]()
+                
+                // 取得データを配列に代入
+                for snap in snapshot.children {
+                    snapArray.append(snap as! DataSnapshot)
+                }
+                // 配列からuser_idを取り出す
+                for snap in snapArray {
+                    let id = snap.childSnapshot(forPath: "user_id").value as! String
+                    idArray.append(id)
+                }
+                // user_idから各userの情報を取得しテーブルに反映
+                for id in idArray {
+                    self.ref.child("users").queryOrdered(byChild: "user_id").queryEqual(toValue: id).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
+                        // 取得データを配列に代入
+                        for snap in snapshot.children {
+                            array.append(snap as! DataSnapshot)
+                        }
+                        self.joinTableData = array
+                        self.tableView.reloadData()
+                    })
+                }
+                
+                // 参加人数
                 self.tableData["joinNum"] = snapshot.childrenCount
                 self.tableView.reloadData()
             })

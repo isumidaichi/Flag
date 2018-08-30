@@ -42,13 +42,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // タブバーのアイテム色変更
         UITabBar.appearance().tintColor = UIColor.red
         
-        // ログインユーザーの起動時、画面遷移
-        if let _ = Auth.auth().currentUser {
-            let storyboard:UIStoryboard =  UIStoryboard(name: "Main",bundle: nil)
-            window?.rootViewController
-                = storyboard.instantiateViewController(withIdentifier: "Top")
-        }
-        
         return true
     }
 

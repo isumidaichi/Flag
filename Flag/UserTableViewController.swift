@@ -20,20 +20,47 @@ class UserTableViewController: UITableViewController {
     var joinTableData:[DataSnapshot] = [DataSnapshot]()
     var eventId: String?
     var registerNum = 0
-    let sectionTitle = ["開催予定", "参加予定"]
-    
+    var sectionTitle = ["開催予定", "参加予定"]
+    @IBOutlet weak var createButton: UIBarButtonItem!
+    @IBOutlet weak var logInButton: UIBarButtonItem!
+    @IBOutlet weak var userView: UIView!
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // 空のcellを消す
+        view.backgroundColor = .groupTableViewBackground
+        let tableFooterView = UIView(frame: CGRect.zero)
+        tableView.tableFooterView = tableFooterView
+
+        // ログイン確認
+        guard let _ = Auth.auth().currentUser else {
+            // アラート
+            let alert = UIAlertController(title: "エラー", message: "ログインして下さい。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil)
+            alert.addAction(ok)
+            self.present(alert, animated: true, completion: nil)
+            
+            // タイトルを空にする
+            sectionTitle = []
+            // 非表示設定
+            createButton.isEnabled = false
+            createButton.tintColor = UIColor.clear
+            userView.isHidden = true
+            
+            return
+        }
+        
+        // ログインボタン非表示
+        logInButton.isEnabled = false
+        logInButton.tintColor = UIColor.clear
         // DB参照
         ref = Database.database().reference()
         // tableviewの設定
         tableView.delegate = self
         tableView.dataSource = self
         tableView.rowHeight = 100
-        // 空のcellを消す
-        view.backgroundColor = .groupTableViewBackground
-        let tableFooterView = UIView(frame: CGRect.zero)
-        tableView.tableFooterView = tableFooterView
+
         // ユーザー情報の表示
         if let name = user?.displayName {
             self.navigationItem.title = "\(name)のページ"
@@ -43,10 +70,16 @@ class UserTableViewController: UITableViewController {
         observeJoinData()
     }
     
+    // ログインボタン押したら
+    @IBAction func tappedLoginButton(_ sender: UIBarButtonItem) {
+        let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+        self.present(next,animated: true, completion: nil)
+    }
+    
     // ログアウトボタンの処理
     @IBAction func tappedLogoutButton(_ sender: UIButton) {
         _ = try? Auth.auth().signOut()
-        let next = storyboard!.instantiateViewController(withIdentifier: "Login")
+        let next = storyboard!.instantiateViewController(withIdentifier: "Top")
         self.present(next,animated: true, completion: nil)
     }
     
@@ -81,9 +114,34 @@ class UserTableViewController: UITableViewController {
                         }
                         // event_idから各eventの情報を取得し削除
                         for id in idArray {
-                            self.ref.child("events").child(id as! String).observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
+                            self.ref.child("events").child(id as! String).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
                                 let key = snapshot.key
                                 self.ref.child("events/\(key)").removeValue()
+                            })
+                            
+                            // 「event_user_join」テーブルからデータ削除（eventから）
+                            self.ref.child("event_user_join").queryOrdered(byChild: "event_id").queryEqual(toValue: id).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                                
+                                var snapArray = [DataSnapshot]()
+                                for snap in snapshot.children {
+                                    snapArray.append(snap as! DataSnapshot)
+                                }
+                                for snap in snapArray {
+                                    let key = snap.key
+                                    self.ref.child("event_user_join/\(key)").removeValue()
+                                }
+                            })
+                            // 「event_user_favorite」テーブルからデータ削除（eventから）
+                            self.ref.child("event_user_favorite").queryOrdered(byChild: "event_id").queryEqual(toValue: id).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                                
+                                var snapArray = [DataSnapshot]()
+                                for snap in snapshot.children {
+                                    snapArray.append(snap as! DataSnapshot)
+                                }
+                                for snap in snapArray {
+                                    let key = snap.key
+                                    self.ref.child("event_user_favorite/\(key)").removeValue()
+                                }
                             })
                         }
                         // 「event_user_host」テーブルからデータ削除
@@ -93,7 +151,7 @@ class UserTableViewController: UITableViewController {
                         }
                     })
                     
-                    // 「event_user_join」テーブルからデータ削除
+                    // 「event_user_join」テーブルからデータ削除（userから）
                     self.ref.child("event_user_join").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
                         
                         var snapArray = [DataSnapshot]()
@@ -105,7 +163,8 @@ class UserTableViewController: UITableViewController {
                             self.ref.child("event_user_join/\(key)").removeValue()
                         }
                     })
-                    // 「event_user_favorite」テーブルからデータ削除
+                    
+                    // 「event_user_favorite」テーブルからデータ削除（userから）
                     self.ref.child("event_user_favorite").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
                         
                         var snapArray = [DataSnapshot]()
@@ -118,8 +177,21 @@ class UserTableViewController: UITableViewController {
                         }
                     })
                     
-                    // ログイン画面に戻る
-                    let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                    // 「users」テーブルからデータ削除
+                    self.ref.child("users").queryOrdered(byChild: "user_id").queryEqual(toValue: self.uid).observeSingleEvent(of: DataEventType.value, with: { (snapshot:DataSnapshot) in
+                        
+                        var snapArray = [DataSnapshot]()
+                        for snap in snapshot.children {
+                            snapArray.append(snap as! DataSnapshot)
+                        }
+                        for snap in snapArray {
+                            let key = snap.key
+                            self.ref.child("users/\(key)").removeValue()
+                        }
+                    })
+                    
+                    // トップ画面に戻る
+                    let next = self.storyboard!.instantiateViewController(withIdentifier: "Top")
                     self.present(next,animated: true, completion: nil)
                 }
             }
@@ -181,7 +253,7 @@ class UserTableViewController: UITableViewController {
                     } else {
                         joinCanLabel?.isHidden = false
                         joinCanLabel?.text = "キャンセル待ちです"
-                    }                    
+                    }
                 }
             }
         }
@@ -244,7 +316,6 @@ class UserTableViewController: UITableViewController {
             // cell削除
             hostTableData.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .fade)
-            
         }
     }
     

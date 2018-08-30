@@ -66,7 +66,7 @@ class SearchCollectionViewController: UICollectionViewController, UICollectionVi
     
     // DBからtagを取得
     func observeData(){
-        self.defaultRef = ref.child("tag")
+        self.defaultRef = ref.child("tags")
         defaultRef?.observe(DataEventType.value, with: { (snapshot:DataSnapshot) in
             
             var array = [DataSnapshot]()

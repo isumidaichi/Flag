@@ -22,7 +22,7 @@ class DetailTableViewController: UITableViewController {
     var ref: DatabaseReference!
     var defaultRef: DatabaseReference?
     var joinRef: DatabaseReference?
-    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "参加人数", "キーワード"]
+    let sectionTitle = ["タイトル", "詳細", "日時", "住所", "キーワード", "参加人数"]
     
     var tableData: [String : Any] = [
         "title": "",
@@ -67,8 +67,15 @@ class DetailTableViewController: UITableViewController {
         
         guard (uid != nil) else {
             // ログインアラート
-            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "エラー", message: "参加登録には、ログインが必要です。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "ログイン", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
+                // ログイン画面に
+                let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                self.present(next,animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "キャンセル", style: UIAlertActionStyle.cancel, handler: nil)
+            alert.addAction(ok)
+            alert.addAction(cancel)
             present(alert, animated: true, completion: nil)
             
             return
@@ -97,8 +104,15 @@ class DetailTableViewController: UITableViewController {
         
         guard (uid != nil) else {
             // ログインアラート
-            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "エラー", message: "参加登録解除には、ログインが必要です。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "ログイン", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
+                // ログイン画面に
+                let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                self.present(next,animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "キャンセル", style: UIAlertActionStyle.cancel, handler: nil)
+            alert.addAction(ok)
+            alert.addAction(cancel)
             present(alert, animated: true, completion: nil)
             
             return
@@ -134,8 +148,15 @@ class DetailTableViewController: UITableViewController {
         
         guard (uid != nil) else {
             // ログインアラート
-            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "エラー", message: "お気に入り登録には、ログインが必要です。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "ログイン", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
+                // ログイン画面に
+                let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                self.present(next,animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "キャンセル", style: UIAlertActionStyle.cancel, handler: nil)
+            alert.addAction(ok)
+            alert.addAction(cancel)
             present(alert, animated: true, completion: nil)
             
             return
@@ -164,8 +185,15 @@ class DetailTableViewController: UITableViewController {
         
         guard (uid != nil) else {
             // ログインアラート
-            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            let alert = UIAlertController(title: "エラー", message: "お気に入り解除には、ログインが必要です。", preferredStyle: .alert)
+            let ok = UIAlertAction(title: "ログイン", style: UIAlertActionStyle.default){ (action: UIAlertAction) in
+                // ログイン画面に
+                let next = self.storyboard!.instantiateViewController(withIdentifier: "Login")
+                self.present(next,animated: true, completion: nil)
+            }
+            let cancel = UIAlertAction(title: "キャンセル", style: UIAlertActionStyle.cancel, handler: nil)
+            alert.addAction(ok)
+            alert.addAction(cancel)
             present(alert, animated: true, completion: nil)
             
             return
@@ -225,11 +253,11 @@ class DetailTableViewController: UITableViewController {
         } else if(indexPath.section == 3) {
             cell.textLabel?.text = self.tableData["place"] as? String
         } else if(indexPath.section == 4) {
+            cell.textLabel?.text =  self.tableData["tag"] as? String
+        } else if(indexPath.section == 5) {
             if let joinNum = tableData["joinNum"], let limitNum = tableData["limitNum"] {
                 cell.textLabel?.text = "\(joinNum)人 / \(limitNum)人"
             }
-        } else if(indexPath.section == 5) {
-            cell.textLabel?.text =  self.tableData["tag"] as? String
         }
         return cell
     }

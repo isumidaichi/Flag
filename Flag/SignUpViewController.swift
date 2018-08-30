@@ -8,16 +8,20 @@
 
 import UIKit
 import FirebaseAuth
+import FirebaseDatabase
 
 class SignUpViewController: UIViewController {
     
     @IBOutlet weak var name: UITextField!
     @IBOutlet weak var email: UITextField!
     @IBOutlet weak var password: UITextField!
+    var ref: DatabaseReference!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         Auth.auth().languageCode = "ja";
+        // DB参照
+        ref = Database.database().reference()
     }
     
     // 新規登録ボタンの処理
@@ -57,6 +61,16 @@ class SignUpViewController: UIViewController {
             guard (Auth.auth().currentUser?.isEmailVerified)! else {
                 Auth.auth().currentUser?.sendEmailVerification(completion: { (error) in
                     if nil == error {
+                        // DBにもユーザー名を保存
+                        if (Auth.auth().currentUser != nil) {
+                            let newChild = self.ref.child("users").childByAutoId()
+                            newChild.setValue(
+                                [
+                                    "user_id": Auth.auth().currentUser?.uid ,
+                                    "name": self.name.text
+                                ]
+                            )
+                        }
                         self.dismiss(animated: true, completion: nil)
                     } else {
                         // メアドが存在しない場合、再入力を求める
@@ -78,5 +92,5 @@ class SignUpViewController: UIViewController {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.view.endEditing(true)
     }
-
+    
 }

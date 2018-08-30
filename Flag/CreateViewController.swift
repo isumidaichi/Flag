@@ -32,7 +32,6 @@ class CreateViewController: UIViewController, UITextFieldDelegate{
         
         // textfield設定
         tagField.delegate = self
-        titleField.delegate = self
 
         // キーボード設定
         placeField.textContentType = UITextContentType.fullStreetAddress
@@ -49,14 +48,6 @@ class CreateViewController: UIViewController, UITextFieldDelegate{
     
     // DBに保存
     @IBAction func save(_ sender: UIBarButtonItem) {
-        guard (uid != nil) else {
-            // ログインアラート
-            let alert = UIAlertController(title: "エラー", message: "再度ログインして下さい", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alert, animated: true, completion: nil)
-
-            return
-        }
         
         let title: String = self.titleField.text!
         let detail: String = self.detailField.text!
@@ -96,7 +87,7 @@ class CreateViewController: UIViewController, UITextFieldDelegate{
         newHostChild.setValue(hostData)
         
         // tagテーブルに
-        let newTagChild = self.ref.child("tag").childByAutoId()
+        let newTagChild = self.ref.child("tags").childByAutoId()
         newTagChild.setValue(tag)
         
         // モーダルを閉じる

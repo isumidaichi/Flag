@@ -92,7 +92,6 @@ class SearchTableViewController: UITableViewController {
             for snap in snapshot.children {
                 array.append(snap as! DataSnapshot)
             }
-            
             for snap in array {
                 if snap.childSnapshot(forPath: "event_id").value as? String == self.eventId {
                     self.checkHost(true)

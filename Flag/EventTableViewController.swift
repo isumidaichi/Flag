@@ -19,9 +19,16 @@ class EventTableViewController: UITableViewController {
     var eventId: String?
     @IBAction func unwindEvent(segue: UIStoryboardSegue) {
     }
-
+    @IBOutlet weak var logInButton: UIBarButtonItem!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        // ログイン確認
+        if Auth.auth().currentUser == nil {
+            // ボタン非表示
+            logInButton.isEnabled = false
+            logInButton.tintColor = UIColor.clear
+        }
         
         // DB参照
         ref = Database.database().reference()

@@ -28,6 +28,11 @@ class LogInViewController: UIViewController {
             }}
     }
     
+    @IBAction func tappedCancelButton(_ sender: UIBarButtonItem) {
+        // モーダルを閉じる
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     private func validateAuthenticationResult(_ user: AuthDataResult?, error: Error?) {
         if let error = error{
             let alert = UIAlertController(title: "エラー", message: error.localizedDescription, preferredStyle: .alert)
